@@ -36,17 +36,65 @@ const STATS = [
 ];
 
 const RECENT = [
-  { subject: "Mathematics – Chapter 5", class: "Class X-A", date: "Aug 24", score: "72%", ok: true },
-  { subject: "Physics – Thermodynamics", class: "Class XI-B", date: "Aug 22", score: "68%", ok: null },
-  { subject: "Chemistry – Organic", class: "Class XII-A", date: "Aug 20", score: "81%", ok: true },
-  { subject: "Biology – Cell Biology", class: "Class X-B", date: "Aug 18", score: "55%", ok: false },
+  {
+    subject: "Mathematics – Chapter 5",
+    class: "Class X-A",
+    date: "Aug 24",
+    score: "72%",
+    ok: true,
+  },
+  {
+    subject: "Physics – Thermodynamics",
+    class: "Class XI-B",
+    date: "Aug 22",
+    score: "68%",
+    ok: null,
+  },
+  {
+    subject: "Chemistry – Organic",
+    class: "Class XII-A",
+    date: "Aug 20",
+    score: "81%",
+    ok: true,
+  },
+  {
+    subject: "Biology – Cell Biology",
+    class: "Class X-B",
+    date: "Aug 18",
+    score: "55%",
+    ok: false,
+  },
 ];
 
 const QUICK = [
-  { icon: "📤", label: "Grade New Exam", sub: "Upload & auto-grade", dark: true, href: "exams" },
-  { icon: "📚", label: "My Library", sub: "Browse resources", dark: false, href: "library" },
-  { icon: "🏫", label: "My Classroom", sub: "View students", dark: false, href: "classroom" },
-  { icon: "📝", label: "Assignments", sub: "Track submissions", dark: false, href: "assignments" },
+  {
+    icon: "📤",
+    label: "Grade New Exam",
+    sub: "Upload & auto-grade",
+    dark: true,
+    href: "exams",
+  },
+  {
+    icon: "📚",
+    label: "My Library",
+    sub: "Browse resources",
+    dark: false,
+    href: "library",
+  },
+  {
+    icon: "🏫",
+    label: "My Classroom",
+    sub: "View students",
+    dark: false,
+    href: "classroom",
+  },
+  {
+    icon: "📝",
+    label: "Assignments",
+    sub: "Track submissions",
+    dark: false,
+    href: "assignments",
+  },
 ];
 
 function scoreBadge(ok: boolean | null) {
@@ -55,7 +103,11 @@ function scoreBadge(ok: boolean | null) {
   return "bg-warn-100 text-warn-700";
 }
 
-export function HomeScreen({ onNavigate }: { onNavigate: (page: string) => void }) {
+export function HomeScreen({
+  onNavigate,
+}: {
+  onNavigate: (page: string) => void;
+}) {
   return (
     <div className="h-full overflow-y-auto">
       <div className="mx-auto max-w-5xl px-6 py-8">
@@ -80,10 +132,14 @@ export function HomeScreen({ onNavigate }: { onNavigate: (page: string) => void 
               className={`rounded-2xl border bg-gradient-to-br bg-white ${s.border} ${s.gradient} p-5 shadow-[var(--shadow-card)] transition hover:shadow-[var(--shadow-lift)]`}
             >
               <span className="text-2xl">{s.icon}</span>
-              <div className={`mt-3 text-[32px] font-extrabold tracking-tight ${s.text}`}>
+              <div
+                className={`mt-3 text-[32px] font-extrabold tracking-tight ${s.text}`}
+              >
                 {s.value}
               </div>
-              <div className="mt-0.5 text-xs font-semibold text-ink-500">{s.label}</div>
+              <div className="mt-0.5 text-xs font-semibold text-ink-500">
+                {s.label}
+              </div>
             </div>
           ))}
         </div>
@@ -108,8 +164,12 @@ export function HomeScreen({ onNavigate }: { onNavigate: (page: string) => void 
                   {q.icon}
                 </span>
                 <span>
-                  <span className="block text-sm font-extrabold">{q.label}</span>
-                  <span className={`block text-[11px] font-medium ${q.dark ? "text-white/60" : "text-ink-500"}`}>
+                  <span className="block text-sm font-extrabold">
+                    {q.label}
+                  </span>
+                  <span
+                    className={`block text-[11px] font-medium ${q.dark ? "text-white/60" : "text-ink-500"}`}
+                  >
                     {q.sub}
                   </span>
                 </span>
@@ -143,7 +203,9 @@ export function HomeScreen({ onNavigate }: { onNavigate: (page: string) => void 
                   📋
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-[13px] font-bold text-ink-900">{r.subject}</div>
+                  <div className="truncate text-[13px] font-bold text-ink-900">
+                    {r.subject}
+                  </div>
                   <div className="text-[11px] font-medium text-ink-500">
                     {r.class} · {r.date}
                   </div>
@@ -164,10 +226,12 @@ export function HomeScreen({ onNavigate }: { onNavigate: (page: string) => void 
             ✨
           </div>
           <div>
-            <div className="text-[13px] font-extrabold text-ink-900">AI Insight</div>
+            <div className="text-[13px] font-extrabold text-ink-900">
+              AI Insight
+            </div>
             <p className="mt-0.5 text-[13px] leading-relaxed text-ink-600">
-              Class X-B's average in Biology dropped 12% this month. Consider a remedial session
-              before the next assessment.
+              Class X-B's average in Biology dropped 12% this month. Consider a
+              remedial session before the next assessment.
             </p>
           </div>
         </div>
