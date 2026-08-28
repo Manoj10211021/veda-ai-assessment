@@ -37,13 +37,14 @@ export function UploadScreen({
             ✨ Powered by Gemini AI
           </div>
           <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-ink-900 sm:text-[44px] sm:leading-[1.15]">
-            Grade exams{" "}
+            Upload{" "}
             <span className="rounded-2xl bg-gradient-to-r from-brand-500 to-brand-600 px-3 py-1 text-white">
-              10× faster
+              Question Paper & Answer Sheets
             </span>
           </h1>
           <p className="mt-3 text-[15px] font-medium text-ink-600">
-            Upload a question paper and answer sheet — AI extracts, maps and grades everything instantly
+            Upload a question paper and answer sheet — AI extracts, maps and
+            grades everything instantly
           </p>
         </div>
 
@@ -98,7 +99,9 @@ export function UploadScreen({
           <p className="text-[13px] text-ink-500">
             Both files needed · No data stored on our servers
           </p>
-          <p className="text-[11px] text-ink-400">AI powered by Google Gemini 2.5 Flash</p>
+          <p className="text-[11px] text-ink-400">
+            AI powered by Google Gemini 2.5 Flash
+          </p>
         </div>
       </div>
     </div>
@@ -129,9 +132,16 @@ function DropCard({
 
   return (
     <div
-      onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDrag(true);
+      }}
       onDragLeave={() => setDrag(false)}
-      onDrop={(e) => { e.preventDefault(); setDrag(false); onAdd(e.dataTransfer.files); }}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDrag(false);
+        onAdd(e.dataTransfer.files);
+      }}
       className={`rounded-3xl border-2 p-3 transition-all ${
         drag
           ? `border-brand-500 bg-gradient-to-br ${accent}`
@@ -144,7 +154,10 @@ function DropCard({
         multiple
         accept="application/pdf,image/*"
         className="hidden"
-        onChange={(e) => { onAdd(e.target.files); e.target.value = ""; }}
+        onChange={(e) => {
+          onAdd(e.target.files);
+          e.target.value = "";
+        }}
       />
 
       {metas.length === 0 ? (
@@ -157,8 +170,7 @@ function DropCard({
           </span>
           <span>
             <span className="block text-[17px] font-extrabold text-ink-900">
-              Upload{" "}
-              <span className="text-brand-500">{title}</span>
+              Upload <span className="text-brand-500">{title}</span>
             </span>
             <span className="mt-0.5 block text-xs font-medium text-ink-500">
               PDF or image · Max 10 MB
@@ -174,13 +186,17 @@ function DropCard({
             >
               {m.file.type === "application/pdf" ? <PdfBadge /> : <ImgBadge />}
               <div className="min-w-0 text-left">
-                <div className="truncate text-sm font-bold text-ink-900">{m.file.name}</div>
+                <div className="truncate text-sm font-bold text-ink-900">
+                  {m.file.name}
+                </div>
                 <div className="text-xs text-ink-500">
                   {fmtSize(m.file.size)} ·{" "}
                   {m.pages === 0 ? (
                     <span className="inline-block h-2.5 w-8 animate-pulse rounded-sm bg-ink-200" />
                   ) : (
-                    <>{m.pages} {m.pages === 1 ? "page" : "pages"}</>
+                    <>
+                      {m.pages} {m.pages === 1 ? "page" : "pages"}
+                    </>
                   )}
                 </div>
               </div>
@@ -228,7 +244,9 @@ function OrbitAvatar() {
       {/* Inner circle */}
       <div className="absolute inset-3 rounded-full bg-white shadow-md ring-1 ring-black/5" />
       {/* Emoji */}
-      <div className="absolute inset-0 grid place-items-center text-[56px] select-none">👩🏽‍🏫</div>
+      <div className="absolute inset-0 grid place-items-center text-[56px] select-none">
+        👩🏽‍🏫
+      </div>
       {/* Orbit items */}
       {ORBITS.map((o) => (
         <span
