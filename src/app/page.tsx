@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { assembleAnalysis, mergeQuestions, mergeSegments } from "@/lib/assemble";
+import {
+  assembleAnalysis,
+  mergeQuestions,
+  mergeSegments,
+} from "@/lib/assemble";
 import { chunk, getUserApiKey, postJSON } from "@/lib/client";
 import { filesToPageImages, getPdfPageCount } from "@/lib/pdf";
 import type { AnalysisResult, PageImage } from "@/lib/types";
@@ -14,7 +18,12 @@ import { ResultsScreen } from "@/components/ResultsScreen";
 import { SettingsModal } from "@/components/SettingsModal";
 import { Sidebar, type NavPage } from "@/components/Sidebar";
 import { TopBar } from "@/components/TopBar";
-import { AS_MAX_PAGES, QP_MAX_PAGES, UploadScreen, type FileMetaT } from "@/components/UploadScreen";
+import {
+  AS_MAX_PAGES,
+  QP_MAX_PAGES,
+  UploadScreen,
+  type FileMetaT,
+} from "@/components/UploadScreen";
 
 type Stage = "upload" | "processing" | "results";
 
@@ -38,19 +47,15 @@ export default function Page() {
 
   const collapsed = pinOpen === null ? stage !== "upload" : !pinOpen;
 
-  const navigate = useCallback((page: NavPage) => {
-    setActivePage(page);
-    // Reset exam stage if navigating away from exams
-    if (page !== "exams") {
-      // keep exam state so user can come back
-    }
+  const navigate = useCallback((_page: NavPage) => {
+    setActivePage("exams");
   }, []);
 
   const addFiles = useCallback(
     async (side: "qp" | "as", list: FileList | null) => {
       if (!list || !list.length) return;
       const incoming = Array.from(list).filter(
-        (f) => f.type === "application/pdf" || f.type.startsWith("image/")
+        (f) => f.type === "application/pdf" || f.type.startsWith("image/"),
       );
       if (!incoming.length) {
         setError("Please upload PDF or image files only.");
@@ -69,14 +74,16 @@ export default function Page() {
         try {
           const pages =
             f.type === "application/pdf" ? await getPdfPageCount(f) : 1;
-          setter((prev) => prev.map((m) => (m.id === id ? { ...m, pages } : m)));
+          setter((prev) =>
+            prev.map((m) => (m.id === id ? { ...m, pages } : m)),
+          );
         } catch (e: any) {
           setter((prev) => prev.filter((m) => m.id !== id));
           setError(e?.message ?? `Could not read "${f.name}".`);
         }
       }
     },
-    []
+    [],
   );
 
   const removeFile = useCallback((side: "qp" | "as", id: string) => {
@@ -91,38 +98,40 @@ export default function Page() {
     try {
       const qImgs = await filesToPageImages(
         qp.map((m) => m.file),
-        QP_MAX_PAGES
+        QP_MAX_PAGES,
       );
-      if (!qImgs.length) throw new Error("Could not read any pages from the question paper.");
+      if (!qImgs.length)
+        throw new Error("Could not read any pages from the question paper.");
 
       const qResps = await Promise.all(
         chunk(qImgs, 6).map((b) =>
           postJSON("/api/extract-questions", {
             images: b.map((p) => p.dataUrl),
             startPage: b[0].index,
-          })
-        )
+          }),
+        ),
       );
       const questions = mergeQuestions(qResps);
       if (!questions.length)
         throw new Error(
-          "No questions could be detected in the question paper. Try a clearer scan."
+          "No questions could be detected in the question paper. Try a clearer scan.",
         );
 
       setStep(1);
       const aImgs = await filesToPageImages(
         as.map((m) => m.file),
-        AS_MAX_PAGES
+        AS_MAX_PAGES,
       );
-      if (!aImgs.length) throw new Error("Could not read any pages from the answer sheet.");
+      if (!aImgs.length)
+        throw new Error("Could not read any pages from the answer sheet.");
 
       const aResps = await Promise.all(
         chunk(aImgs, 5).map((b) =>
           postJSON("/api/extract-answers", {
             images: b.map((p) => p.dataUrl),
             startPage: b[0].index,
-          })
-        )
+          }),
+        ),
       );
       const segments = mergeSegments(aResps, aImgs.length);
 
@@ -134,7 +143,8 @@ export default function Page() {
       setAnalysis(result);
       setStage("results");
     } catch (e: any) {
-      const msg: string = e?.message ?? "Something went wrong while processing.";
+      const msg: string =
+        e?.message ?? "Something went wrong while processing.";
       // Hint user to add their own key on rate-limit / key errors
       const isKeyErr =
         msg.includes("rate limit") ||
@@ -144,7 +154,7 @@ export default function Page() {
       setError(
         isKeyErr
           ? `${msg} → Open Settings to add your own Gemini API key.`
-          : msg
+          : msg,
       );
       setStage("upload");
     }
@@ -177,7 +187,7 @@ export default function Page() {
 
         <main className="min-h-0 flex-1 overflow-hidden">
           {activePage === "home" && (
-            <HomeScreen onNavigate={(p) => setActivePage(p as NavPage)} />
+            <HomeScreen onNavigate={(p) => navigate(p as NavPage)} />
           )}
           {activePage === "classroom" && <ClassroomScreen />}
           {activePage === "assignments" && <AssignmentsScreen />}
