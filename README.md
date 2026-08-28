@@ -7,7 +7,7 @@ The review workspace keeps the original answer sheet visible. Selecting a questi
 ## Links
 
 - GitHub: <https://github.com/Manoj10211021/veda-ai-assessment>
-- Local development: <http://localhost:3000>
+- Live: <https://veda-ai-assessment-rouge.vercel.app/>
 
 ## Features
 
@@ -332,6 +332,6 @@ The Vercel project is configured with the wrong Root Directory. Set it to `ai-as
 
 Run `npm install` again so the `postinstall` script copies `pdf.worker.min.mjs` into `public/`. Then restart the development server and reload the browser.
 
-## License
+<!-- ## License
 
-This repository does not currently declare an open-source license. Contact the repository owner before redistributing or using it in a commercial product.
+This repository does not currently declare an open-source license. Contact the repository owner before redistributing or using it in a commercial product. -->
