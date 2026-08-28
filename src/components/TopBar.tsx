@@ -30,7 +30,13 @@ const PAGE_ICONS: Record<NavPage, string> = {
   library: "📚",
 };
 
-function Avatar({ size = "h-8 w-8", text = "text-[11px]" }: { size?: string; text?: string }) {
+function Avatar({
+  size = "h-8 w-8",
+  text = "text-[11px]",
+}: {
+  size?: string;
+  text?: string;
+}) {
   return (
     <span
       className={`grid ${size} shrink-0 select-none place-items-center rounded-full bg-gradient-to-br from-brand-400 to-brand-700 font-extrabold text-white shadow-sm ${text}`}
@@ -95,7 +101,7 @@ export function TopBar({
   return (
     <header className="mx-3 mt-3 shrink-0">
       {/* ── API key warning banner ── */}
-      {!hasApiKey && (
+      {/* {!hasApiKey && (
         <div className="mb-2 flex items-center gap-2 rounded-xl border border-warn-700/25 bg-warn-100 px-4 py-2 text-xs font-semibold text-warn-700 fade-in">
           <span className="shrink-0 text-sm">⚠️</span>
           <span>
@@ -108,7 +114,7 @@ export function TopBar({
             </button>
           </span>
         </div>
-      )}
+      )} */}
 
       {/* ── Main topbar ── */}
       <div className="flex h-14 items-center gap-1 rounded-2xl border border-line bg-white px-2 shadow-[var(--shadow-card)]">
@@ -125,7 +131,9 @@ export function TopBar({
         {/* Breadcrumb */}
         <div className="hidden items-center gap-1.5 sm:flex">
           <span className="text-sm">{PAGE_ICONS[activePage]}</span>
-          <span className="text-[15px] font-bold text-ink-900">{PAGE_LABELS[activePage]}</span>
+          <span className="text-[15px] font-bold text-ink-900">
+            {PAGE_LABELS[activePage]}
+          </span>
         </div>
 
         <div className="ml-auto flex items-center gap-0.5">
@@ -151,7 +159,9 @@ export function TopBar({
               className="flex items-center gap-2 rounded-xl px-2 py-1 transition hover:bg-paper"
             >
               <Avatar />
-              <span className="text-[13px] font-bold text-ink-900">Madhur Rastogi</span>
+              <span className="text-[13px] font-bold text-ink-900">
+                Madhur Rastogi
+              </span>
               <IconChevronDown
                 className={`h-3.5 w-3.5 text-ink-500 transition-transform duration-200 ${
                   userOpen ? "rotate-180" : ""
@@ -165,7 +175,9 @@ export function TopBar({
                 <div className="flex items-center gap-3 bg-gradient-to-br from-paper to-paper-dark px-4 py-3.5">
                   <Avatar size="h-10 w-10" text="text-sm" />
                   <div className="min-w-0">
-                    <div className="truncate text-[13px] font-extrabold text-ink-900">Madhur Rastogi</div>
+                    <div className="truncate text-[13px] font-extrabold text-ink-900">
+                      Madhur Rastogi
+                    </div>
                     <div className="truncate text-[11px] font-medium text-ink-500">
                       Senior Teacher · DPS Bokaro
                     </div>
@@ -178,12 +190,18 @@ export function TopBar({
                     {
                       icon: "⚙️",
                       label: "Settings",
-                      action: () => { onOpenSettings(); setUserOpen(false); },
+                      action: () => {
+                        onOpenSettings();
+                        setUserOpen(false);
+                      },
                     },
                     {
                       icon: "🔑",
                       label: getUserApiKey() ? "Change API Key" : "Add API Key",
-                      action: () => { onOpenSettings(); setUserOpen(false); },
+                      action: () => {
+                        onOpenSettings();
+                        setUserOpen(false);
+                      },
                     },
                   ].map((item) => (
                     <button
@@ -213,13 +231,19 @@ export function TopBar({
           {/* Mobile avatar */}
           <button
             className="md:hidden"
-            onClick={() => { onOpenSettings(); }}
+            onClick={() => {
+              onOpenSettings();
+            }}
             aria-label="User menu"
           >
             <Avatar size="h-8 w-8" text="text-[10px]" />
           </button>
 
-          <IconBtn className="lg:hidden" title="Menu" onClick={onOpenMobileMenu}>
+          <IconBtn
+            className="lg:hidden"
+            title="Menu"
+            onClick={onOpenMobileMenu}
+          >
             <IconMenu className="h-[18px] w-[18px]" />
           </IconBtn>
         </div>
