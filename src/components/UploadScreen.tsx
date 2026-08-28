@@ -39,7 +39,7 @@ export function UploadScreen({
           <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-ink-900 sm:text-[44px] sm:leading-[1.15]">
             Upload{" "}
             <span className="rounded-2xl bg-gradient-to-r from-brand-500 to-brand-600 px-3 py-1 text-white">
-              Question Paper & Answer Sheets
+              Q & A Sheets
             </span>
           </h1>
           <p className="mt-3 text-[15px] font-medium text-ink-600">
