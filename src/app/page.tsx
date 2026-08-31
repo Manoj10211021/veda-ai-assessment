@@ -103,14 +103,15 @@ export default function Page() {
       if (!qImgs.length)
         throw new Error("Could not read any pages from the question paper.");
 
-      const qResps = await Promise.all(
-        chunk(qImgs, 6).map((b) =>
-          postJSON("/api/extract-questions", {
-            images: b.map((p) => p.dataUrl),
-            startPage: b[0].index,
-          }),
-        ),
-      );
+      const qBatches = chunk(qImgs, 4);
+      const qResps = [] as any[];
+      for (const b of qBatches) {
+        const resp = await postJSON("/api/extract-questions", {
+          images: b.map((p) => p.dataUrl),
+          startPage: b[0].index,
+        });
+        qResps.push(resp);
+      }
       const questions = mergeQuestions(qResps);
       if (!questions.length)
         throw new Error(
@@ -125,14 +126,15 @@ export default function Page() {
       if (!aImgs.length)
         throw new Error("Could not read any pages from the answer sheet.");
 
-      const aResps = await Promise.all(
-        chunk(aImgs, 5).map((b) =>
-          postJSON("/api/extract-answers", {
-            images: b.map((p) => p.dataUrl),
-            startPage: b[0].index,
-          }),
-        ),
-      );
+      const aBatches = chunk(aImgs, 3);
+      const aResps = [] as any[];
+      for (const b of aBatches) {
+        const resp = await postJSON("/api/extract-answers", {
+          images: b.map((p) => p.dataUrl),
+          startPage: b[0].index,
+        });
+        aResps.push(resp);
+      }
       const segments = mergeSegments(aResps, aImgs.length);
 
       setStep(2);
