@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getGeminiTimeoutMs } from "./gemini-timeout";
 
 export class HttpError extends Error {
   status: number;
@@ -59,6 +60,20 @@ export function parseJsonLoose(text: string): unknown {
   );
 }
 
+export function getGeminiModelCandidates(configuredModel?: string): string[] {
+  const seeded = [
+    configuredModel,
+    "gemini-3.6-flash",
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-2.5-pro",
+  ]
+    .map((m) => (typeof m === "string" ? m.trim() : ""))
+    .filter(Boolean);
+
+  return [...new Set(seeded)];
+}
+
 export async function geminiJSON(opts: {
   prompt: string;
   images?: string[];
@@ -71,7 +86,9 @@ export async function geminiJSON(opts: {
       500,
       "GEMINI_API_KEY is not configured. Add it to .env.local or enter your own key in Settings.",
     );
-  const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
+
+  const models = getGeminiModelCandidates(process.env.GEMINI_MODEL);
+  const timeoutMs = getGeminiTimeoutMs((opts.images ?? []).length);
 
   const parts: GeminiPart[] = (opts.images ?? []).map((d) => {
     const { mime, data } = stripDataUrl(d);
@@ -88,71 +105,98 @@ export async function geminiJSON(opts: {
     generationConfig.thinkingConfig = { thinkingBudget: opts.thinkingBudget };
   }
 
-  let res: Response;
-  try {
-    res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts }],
-          generationConfig,
-        }),
-        signal: AbortSignal.timeout(55000),
-      },
-    );
-  } catch (err) {
-    console.error("[Gemini Fetch Timeout/Network Error]:", err);
-    throw new HttpError(
-      504,
-      "The AI request timed out. Try again with fewer pages.",
-    );
-  }
+  let lastError: HttpError | null = null;
 
-  if (!res.ok) {
-    let msg = String(res.status);
+  for (const model of models) {
+    let res: Response | null = null;
     try {
-      const j = await res.json();
-      msg = j?.error?.message ?? msg;
-    } catch {}
-    console.error(`[Gemini API Error ${res.status}]:`, msg);
-    if (res.status === 429)
-      throw new HttpError(
-        429,
-        "Gemini free-tier rate limit hit. Wait a moment and retry.",
+      res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": key,
+          },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts }],
+            generationConfig,
+          }),
+          signal: AbortSignal.timeout(timeoutMs),
+        },
       );
-    throw new HttpError(502, `Gemini API error: ${msg}`);
+    } catch (err) {
+      console.error(`[Gemini Fetch Timeout/Network Error for ${model}]:`, err);
+      lastError = new HttpError(
+        504,
+        "The AI request timed out. Try again with fewer pages.",
+      );
+      continue;
+    }
+
+    if (!res.ok) {
+      let msg = String(res.status);
+      try {
+        const j = await res.json();
+        msg = j?.error?.message ?? msg;
+      } catch {}
+      console.error(`[Gemini API Error ${res.status} on ${model}]:`, msg);
+
+      if (res.status === 429 || res.status === 503 || res.status === 500) {
+        lastError = new HttpError(res.status, `Gemini API error: ${msg}`);
+        continue;
+      }
+
+      if (
+        res.status === 400 &&
+        msg.includes("not found") &&
+        model !== models.at(-1)
+      ) {
+        lastError = new HttpError(502, `Gemini API error: ${msg}`);
+        continue;
+      }
+
+      throw new HttpError(502, `Gemini API error: ${msg}`);
+    }
+
+    try {
+      const data = await res.json();
+      const cand = data?.candidates?.[0];
+      const text: string = (cand?.content?.parts ?? [])
+        .map((p: any) => p?.text ?? "")
+        .join("");
+      if (!text) {
+        console.error(
+          "[Gemini Empty Response Candidate]:",
+          JSON.stringify(cand),
+        );
+        throw new HttpError(
+          502,
+          `Gemini returned an empty response${cand?.finishReason ? ` (${cand.finishReason})` : ""}. Please retry.`,
+        );
+      }
+      if (cand?.finishReason === "MAX_TOKENS") {
+        console.error("[Gemini MAX_TOKENS truncation]:", text.slice(-500));
+        throw new HttpError(
+          502,
+          "The AI response was too long and got cut off. Try again with fewer pages/questions per batch.",
+        );
+      }
+      return parseJsonLoose(text);
+    } catch (e) {
+      if (e instanceof HttpError && [429, 500, 502, 503].includes(e.status)) {
+        lastError = e;
+        continue;
+      }
+      throw e;
+    }
   }
 
-  const data = await res.json();
-  const cand = data?.candidates?.[0];
-  const text: string = (cand?.content?.parts ?? [])
-    .map((p: any) => p?.text ?? "")
-    .join("");
-  if (!text) {
-    console.error("[Gemini Empty Response Candidate]:", JSON.stringify(cand));
-    throw new HttpError(
-      502,
-      `Gemini returned an empty response${cand?.finishReason ? ` (${cand.finishReason})` : ""}. Please retry.`,
-    );
-  }
-  // If Gemini stopped because it ran out of output tokens, the JSON is very
-  // likely truncated mid-array. parseJsonLoose's brace-matching fallback can
-  // still "successfully" parse a truncated array (e.g. it just closes early
-  // after the last complete object), which silently drops every item after
-  // the cut — instead of a parse error, you get a short-but-valid result
-  // that looks legitimate to downstream code. Treat MAX_TOKENS explicitly as
-  // a hard failure so callers retry (e.g. with fewer items per call) rather
-  // than quietly proceeding with partial data.
-  if (cand?.finishReason === "MAX_TOKENS") {
-    console.error("[Gemini MAX_TOKENS truncation]:", text.slice(-500));
-    throw new HttpError(
-      502,
-      "The AI response was too long and got cut off. Try again with fewer pages/questions per batch.",
-    );
-  }
-  return parseJsonLoose(text);
+  if (lastError) throw lastError;
+  throw new HttpError(
+    503,
+    "Gemini is temporarily unavailable. Please try again later.",
+  );
 }
 
 export function errorResponse(e: unknown) {
