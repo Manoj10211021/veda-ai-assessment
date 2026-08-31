@@ -18,7 +18,7 @@ export async function POST(req: Request) {
         label: String(q.label),
         text: String(q.text ?? "").slice(0, 500),
         max_marks: q.max_marks ?? null,
-      }))
+      })),
     );
     const sJson = JSON.stringify(
       segments.map((s: any) => ({
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
         label: String(s.label),
         page: s.page,
         text: String(s.text ?? "").slice(0, 700),
-      }))
+      })),
     );
 
     const prompt = `You are an expert exam grader. Below are (1) the extracted questions of a test and (2) answer segments extracted from ONE student's handwritten answer sheet (each segment has the label the student wrote plus a transcription).

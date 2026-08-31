@@ -29,7 +29,12 @@ Rules:
 Return ONLY JSON in this exact shape:
 {"questions":[{"label":"1","number":"1","sub_part":null,"text":"...","max_marks":2,"section":"A"}]}`;
 
-    const data = await geminiJSON({ prompt, images, thinkingBudget: 0, userKey });
+    const data = await geminiJSON({
+      prompt,
+      images,
+      thinkingBudget: 0,
+      userKey,
+    });
     return NextResponse.json(data);
   } catch (e) {
     return errorResponse(e);
