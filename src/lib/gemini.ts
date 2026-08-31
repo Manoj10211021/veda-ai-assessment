@@ -61,17 +61,25 @@ export function parseJsonLoose(text: string): unknown {
 }
 
 export function getGeminiModelCandidates(configuredModel?: string): string[] {
-  const seeded = [
-    configuredModel,
-    "gemini-3.6-flash",
-    "gemini-2.5-flash",
-    "gemini-2.5-flash-lite",
-    "gemini-2.5-pro",
-  ]
-    .map((m) => (typeof m === "string" ? m.trim() : ""))
-    .filter(Boolean);
+  const preferred = "gemini-3.6-flash";
+  const retiredPrefixes = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro", "gemini-2."];
 
-  return [...new Set(seeded)];
+  const normalize = (value?: string): string => {
+    if (typeof value !== "string") return "";
+    const cleaned = value.trim().replace(/^models\//i, "");
+    if (!cleaned) return "";
+    if (retiredPrefixes.some((prefix) => cleaned.startsWith(prefix))) {
+      return preferred;
+    }
+    return cleaned;
+  };
+
+  const candidates = [
+    normalize(configuredModel),
+    preferred,
+  ].filter(Boolean) as string[];
+
+  return [...new Set(candidates)];
 }
 
 export async function geminiJSON(opts: {
