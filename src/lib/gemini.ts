@@ -62,7 +62,12 @@ export function parseJsonLoose(text: string): unknown {
 
 export function getGeminiModelCandidates(configuredModel?: string): string[] {
   const preferred = "gemini-3.6-flash";
-  const retiredPrefixes = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro", "gemini-2."];
+  const retiredPrefixes = [
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-2.5-pro",
+    "gemini-2.",
+  ];
 
   const normalize = (value?: string): string => {
     if (typeof value !== "string") return "";
@@ -74,10 +79,9 @@ export function getGeminiModelCandidates(configuredModel?: string): string[] {
     return cleaned;
   };
 
-  const candidates = [
-    normalize(configuredModel),
-    preferred,
-  ].filter(Boolean) as string[];
+  const candidates = [normalize(configuredModel), preferred].filter(
+    Boolean,
+  ) as string[];
 
   return [...new Set(candidates)];
 }
