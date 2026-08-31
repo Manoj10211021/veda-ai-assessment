@@ -84,7 +84,7 @@ export async function geminiJSON(opts: {
   if (!key)
     throw new HttpError(
       500,
-      "GEMINI_API_KEY is not configured. Add it to .env.local or enter your own key in Settings.",
+      "GEMINI_API_KEY is not configured. Add it to .env.local for local dev, or set it in Vercel Project Settings > Environment Variables and redeploy. You can also enter your own key in Settings.",
     );
 
   const models = getGeminiModelCandidates(process.env.GEMINI_MODEL);

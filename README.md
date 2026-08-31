@@ -153,6 +153,8 @@ ai-assessment-mapper/
 
    `GEMINI_MODEL` is optional. If omitted, the application defaults to `gemini-3.6-flash`.
 
+   For Vercel deployments, set these same variables in the project dashboard under Project > Settings > Environment Variables, then redeploy.
+
 4. Start the development server:
 
    ```bash
